@@ -10,8 +10,8 @@ void main() {
     vec3 lightColor = vec3(1.0,1.0,1.0);
     vec3 lightSource = normalize(lightSourcePosition - vPosition);
 
-
-    float diffuseStrength = max(0.0, dot(lightSource, vNormal));
+    vec3 viewDirection = normalize(lightSourcePosition - vPosition) ;
+    float diffuseStrength = max(0.0, dot(viewDirection, vNormal));
     vec3 diffuse = diffuseStrength * lightColor;
     vec3 lighting = ambient * 0.0 + diffuse;
 

@@ -7,7 +7,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 import { LoopSubdivision } from 'three-subdivide';
 
-import vertexShader from './shaders/vertexV2.glsl'
+import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from'./shaders/fragmentV2.glsl'
 
 
@@ -120,21 +120,27 @@ new THREE.ShaderMaterial({
     ambient: {value: new THREE.Vector3(0.5,0.5,0.5)}
 },
   vertexShader: vertexShader,
-  fragmentShader: fragmentShader
-
+  fragmentShader: fragmentShader,
+  side: THREE.DoubleSide
 }))
 solidify(sphereMesh)
 
 scene.add(sphereMesh)
 
+const orbitRadius = 10000;
+let angle = 0;
+
 function animate(){
   requestAnimationFrame(animate);
 
-  //PointLight.rotation.x = camera.rotation.x
-  //PointLight.rotation.y = camera.rotation.y
-  //PointLight.rotation.z = camera.rotation.z
+  PointLight.position.x = Math.cos(angle) * orbitRadius;
+  PointLight.position.z = Math.sin(angle) * orbitRadius;
 
-  //PointLight.position.set(camera.position.x, camera.position.y, camera.position.z)
+    // Rotate cube
+    //cube.rotation.x += 0.01;
+    //cube.rotation.y += 0.01;
+
+    angle += 0.05; // Increment angle for next frame
 
   controls.update()
 
