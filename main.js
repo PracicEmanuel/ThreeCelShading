@@ -6,6 +6,9 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
 
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer'
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
+
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from'./shaders/fragmentV2.glsl'
 
@@ -65,11 +68,15 @@ camera.position.setZ(30);
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
+let composer = new EffectComposer(renderer)
+
 const PointLight = new THREE.PointLight(0xFFFFFF)
 PointLight.position.set(10,10,10)
 scene.add(PointLight)
 const PointHelper = new THREE.PointLightHelper(PointLight);
 scene.add(PointHelper)
+
+
 
 const loader = new OBJLoader();
 
@@ -125,12 +132,17 @@ new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 }))
 
+
 sphereMesh.scale.set(10,10,10)
 
 scene.add(sphereMesh)
 
 const orbitRadius = 50;
 let angle = 0;
+
+const renderPass = new RenderPass( scene, camera );
+composer.addPass( renderPass );
+
 
 function animate(){
   requestAnimationFrame(animate);
@@ -148,7 +160,7 @@ function animate(){
 
   controls.update()
 
-  renderer.render(scene, camera)
+  composer.render()
 }
 
 animate();
