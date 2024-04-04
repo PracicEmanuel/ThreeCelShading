@@ -5,14 +5,13 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader'
-import { LoopSubdivision } from 'three-subdivide';
 
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from'./shaders/fragmentV2.glsl'
 
 
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('./img/textures/body.png');
+const texture = textureLoader.load('./img/toneMaps/three-tone.jpg');
 
 const scene = new THREE.Scene();
 
@@ -87,7 +86,8 @@ const CelShader = {
       modelColor : {value: new THREE.Color(0xAAFF00)},
       lighting: {value: new THREE.Color(0xFFFFFF)},
       ambient: {value: new THREE.Vector3(0.5,0.5,0.5)},
-      lightSourcePosition: {value: PointLight.position}
+      lightSourcePosition: {value: PointLight.position},
+      toneMap: texture
   },
   vertexShader: vertexShader,
   fragmentShader: fragmentShader
@@ -109,25 +109,27 @@ new OBJLoader( ).load( './models/Teapot.obj', function ( object ) {
         }
     });
     solidify(object);
-    scene.add( object );
+    //scene.add( object );
 });
 
-const sphereMesh = new THREE.Mesh(new THREE.TorusKnotGeometry(), 
+const sphereMesh = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.4, 128, 128, 2, 3), 
 new THREE.ShaderMaterial({
   uniforms: {
-    modelColor : {value: new THREE.Color(0xAAAAAA)},
+    modelColor : {value: new THREE.Color(0xFFFF00)},
     lighting: {value: new THREE.Color(0xFFFFFF)},
-    ambient: {value: new THREE.Vector3(0.5,0.5,0.5)}
+    ambient: {value: new THREE.Vector3(0.0,1.0,0.0)},
+    lightSourcePosition: {value: PointLight.position}
 },
   vertexShader: vertexShader,
   fragmentShader: fragmentShader,
   side: THREE.DoubleSide
 }))
-solidify(sphereMesh)
+
+sphereMesh.scale.set(10,10,10)
 
 scene.add(sphereMesh)
 
-const orbitRadius = 10000;
+const orbitRadius = 50;
 let angle = 0;
 
 function animate(){
@@ -135,12 +137,14 @@ function animate(){
 
   PointLight.position.x = Math.cos(angle) * orbitRadius;
   PointLight.position.z = Math.sin(angle) * orbitRadius;
+  //camera.position.x = Math.cos(angle) * orbitRadius;
+  //camera.position.z = Math.sin(angle) * orbitRadius;
 
     // Rotate cube
     //cube.rotation.x += 0.01;
     //cube.rotation.y += 0.01;
 
-    angle += 0.05; // Increment angle for next frame
+    angle += 0.01; // Increment angle for next frame
 
   controls.update()
 

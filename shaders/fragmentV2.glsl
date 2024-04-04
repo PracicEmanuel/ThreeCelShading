@@ -1,38 +1,35 @@
-uniform vec3 modelColor;
-uniform vec3 ambient;
-uniform vec3 lightSourcePosition;
-varying vec3 vNormal;
-varying vec3 vPosition;
+uniform vec3 modelColor;                                                        //base color of the model
+uniform vec3 ambient;                                                           //ambient light
+uniform vec3 lightSourcePosition;                                               //position of the light source
+varying vec3 vNormal;                                                           //vertex/surface normal
+varying vec3 vPosition;                                                         //vertex position
 
 
 void main() {
     
-    vec3 lightColor = vec3(1.0,1.0,1.0);
-    vec3 lightSource = normalize(lightSourcePosition - vPosition);
+    //vec3 lightColor = vec3(0.0,0.0,0.0);
+    //vec3 lightSource = normalize(lightSourcePosition - vPosition);
 
     vec3 viewDirection = normalize(lightSourcePosition - vPosition) ;
     float diffuseStrength = max(0.0, dot(viewDirection, vNormal));
-    vec3 diffuse = diffuseStrength * lightColor;
-    vec3 lighting = ambient * 0.0 + diffuse;
-
-    vec3 color = modelColor * lighting;
-    float GrayscaleColor = max(color.x, max(color.y, color.z));
 
     float celShadingColor = 0.0;
-    if(GrayscaleColor > 0.99){
-        celShadingColor = 2.0;
-    }
-    else if (GrayscaleColor > 0.95) {
+    if (diffuseStrength > 0.9) {
         celShadingColor = 1.0;
-    } else if (GrayscaleColor > 0.5) {
+    } else if (diffuseStrength > 0.5) {
         celShadingColor = 0.8;
-    } else if (GrayscaleColor > 0.25) {
+    } else if (diffuseStrength > 0.25) {
         celShadingColor = 0.5;
     }
     else{
         celShadingColor = 0.3;
     }
-    color = modelColor * celShadingColor;
+    vec3 color = modelColor * celShadingColor;
+    if(diffuseStrength > 0.99){
+        color = vec3(1.0);
+    }
+
+    
     gl_FragColor = vec4(color, 1.0);
 }
 
