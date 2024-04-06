@@ -49,6 +49,7 @@ scene.add(PointHelper)
 const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.4, 128, 128, 2, 3), 
   new THREE.ShaderMaterial({
     uniforms: {
+      textured: {value: true},
       textureMap: {value: texture},
       modelColor : {value: new THREE.Color(0xFFFF00)},
       lightSourcePosition: {value: PointLight.position},
@@ -59,7 +60,6 @@ const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.4, 128, 128, 2
   })
 )
 
-torusKnot.scale.set(10,10,10)
 scene.add(torusKnot)
 
 //light orbit parameters
