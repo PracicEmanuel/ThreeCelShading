@@ -1,6 +1,7 @@
 uniform sampler2D tDiffuse;
 uniform float kernelSize;
 uniform float resX, resY;
+uniform vec3 outlineColor;
 varying vec2 vUV;
 //vec4 Blur();
 //float SobelOperator();
@@ -8,10 +9,12 @@ vec3 sobel(sampler2D textureSampler, vec2 texCoord, vec2 texelSize);
 
 void main(){
     
+    vec3 color = vec3(outlineColor.x, outlineColor.y, outlineColor.z);
+
     vec3 sobel = sobel(tDiffuse, vUV, vec2(1.0/1920.0, 1.0/1080.0));
     gl_FragColor = texture2D(tDiffuse, vUV);
     if(sobel.x > 0.1){
-        gl_FragColor = vec4(sobel, 1.0);
+        gl_FragColor = vec4(sobel * color, 1.0);
     }
     
     
