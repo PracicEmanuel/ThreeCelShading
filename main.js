@@ -7,12 +7,13 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer'
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
-
+import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
 
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from'./shaders/fragmentV2.glsl'
 import sobel from './shaders/effects/sobel.glsl'
 import sobelVertex from './shaders/effects/sobelVertex.glsl'
+import security from './shaders/effects/security.glsl'
 import depthFrag from "./shaders/effects/depth.glsl"
 import { ShaderPass } from 'three/examples/jsm/Addons.js';
 import { depthPass } from 'three/examples/jsm/nodes/Nodes.js';
@@ -23,6 +24,7 @@ let depthTexture = new THREE.DepthTexture(window.innerWidth, window.innerHeight,
 const textureLoader = new THREE.TextureLoader();
 const texture = textureLoader.load('./img/textures/fur.jpg');
 const toneMap = textureLoader.load('./img/toneMap/three-tone.jpg');
+const SecurityTexture = textureLoader.load("./img/secGraph2.jpg")
 
 //scene & camera
 const scene = new THREE.Scene();
@@ -54,16 +56,17 @@ const sobelPass = new ShaderPass(new THREE.ShaderMaterial({
   fragmentShader: sobel,
   vertexShader: sobelVertex
 }))
-//composer.addPass(sobelPass)
+composer.addPass(sobelPass)
 
-const depth = new ShaderPass(new THREE.ShaderMaterial({
+const secPass = new ShaderPass(new THREE.ShaderMaterial({
   uniforms: {
-    tDiffuse: {value: depthTexture},
+    tDiffuse: {value: null},
+    secGraphic: {value: SecurityTexture}
   },
-  fragmentShader: depthFrag,
+  fragmentShader: security,
   vertexShader: sobelVertex
 }))
-//composer.addPass(depth)
+//composer.addPass(secPass)
 
 
 
@@ -124,7 +127,7 @@ const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.4, 128, 128, 2
     uniforms: {
       textured: {value: false},
       textureMap: {value: texture},
-      modelColor : {value: new THREE.Color(0x00FF00)},
+      modelColor : {value: new THREE.Color(0xFF0000)},
       lightSourcePosition: {value: PointLight.position},
       toneMap: {value: toneMap}
     },
@@ -141,6 +144,8 @@ scene.add(torusKnot)
 //light orbit parameters
 const orbitRadius = 50;
 let angle = 90;
+
+
 
 
 function animate(){
@@ -160,3 +165,21 @@ function animate(){
 }
 
 animate();
+
+const exportButton = document.getElementById("exportButton");
+
+exportButton.addEventListener("click", () => {
+    // Ensure all WebGL rendering is completed
+    renderer.render(scene, camera);
+
+    // Export canvas to JPEG
+    const dataURL = document.getElementById("bg").toDataURL("image/png", 3.0);
+
+    // Create a link element
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "threejs-scene.";
+
+    // Trigger the download by simulating a click
+    link.click();
+});
