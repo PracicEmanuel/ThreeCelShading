@@ -185,10 +185,32 @@ exportButton.addEventListener("click", () => {
 });
 
 document.getElementById('call').addEventListener('click', async () => {
+  composer.render(scene, camera);
+  const canvas = document.getElementsByTagName("canvas")[0]
+  const dataUrl = canvas.toDataURL('image/png', 1.0);
+  //console.log(dataUrl)
+  /*const link = document.createElement("a")
+  link.href = dataUrl
+  link.download = "threeScene."
+  link.click()*/
   try {
-    const response = await fetch('http://localhost:3001/api');
-    const data = await response.text();
-    console.log(data)
+    const response = await fetch('http://localhost:3000/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ image: dataUrl })
+    });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'uploaded_image.png';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    //console.log(data)
   } catch (error) {
     console.error('Error fetching data:', error);
     console.log('Error fetching data') ;
