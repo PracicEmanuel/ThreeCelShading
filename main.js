@@ -183,3 +183,14 @@ exportButton.addEventListener("click", () => {
     // Trigger the download by simulating a click
     link.click();
 });
+
+document.getElementById('call').addEventListener('click', async () => {
+  try {
+    const response = await fetch('http://localhost:3001/api');
+    const data = await response.text();
+    console.log(data)
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    console.log('Error fetching data') ;
+  }
+});
