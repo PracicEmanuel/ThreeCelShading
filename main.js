@@ -206,7 +206,7 @@ document.getElementById('call').addEventListener('click', async () => {
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
-    a.download = 'uploaded_image.png';
+    a.download = 'uploaded_image.svg';
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
