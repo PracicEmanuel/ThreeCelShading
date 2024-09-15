@@ -7,22 +7,22 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer'
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass'
-import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js';
+
 
 import vertexShader from './shaders/vertex.glsl'
 import fragmentShader from'./shaders/fragmentV2.glsl'
 import sobel from './shaders/effects/sobel.glsl'
 import sobelVertex from './shaders/effects/sobelVertex.glsl'
-import security from './shaders/effects/security.glsl'
-import depthFrag from "./shaders/effects/depth.glsl"
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+
 import { ShaderPass } from 'three/examples/jsm/Addons.js';
-import { depthPass } from 'three/examples/jsm/nodes/Nodes.js';
+
 
 
 let depthTexture = new THREE.DepthTexture(window.innerWidth, window.innerHeight, THREE.RGBAFormat)
 //textures & tonemaps
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('./img/textures/fur.jpg');
+const texture = textureLoader.load('./img/textures/123.png');
 const toneMap = textureLoader.load('./img/toneMap/three-tone.jpg');
 const SecurityTexture = textureLoader.load("./img/secGraph2.jpg")
 
@@ -56,35 +56,10 @@ const sobelPass = new ShaderPass(new THREE.ShaderMaterial({
   fragmentShader: sobel,
   vertexShader: sobelVertex
 }))
-composer.addPass(sobelPass)
-
-const secPass = new ShaderPass(new THREE.ShaderMaterial({
-  uniforms: {
-    tDiffuse: {value: null},
-    secGraphic: {value: SecurityTexture}
-  },
-  fragmentShader: security,
-  vertexShader: sobelVertex
-}))
-//composer.addPass(secPass)
+//composer.addPass(sobelPass)
 
 
-
-/*const nextSobelPass = new ShaderPass(new THREE.ShaderMaterial({
-  uniforms: {
-    tDiffuse: {value: null},
-    resX: {value: window.innerWidth}, 
-    resY: {value: window.innerHeight}
-  },
-  fragmentShader: sobel,
-  vertexShader: nextSobel,
-}))
-composer.addPass(nextSobelPass)*/
-
-
-
-
-const solidify = (mesh, thickness, color, position) =>{
+const solidify = (mesh, thickness, color, position, scale) =>{
   const geometry = mesh.geometry
   const material = new THREE.ShaderMaterial({
     uniforms: {
@@ -107,6 +82,7 @@ const solidify = (mesh, thickness, color, position) =>{
 
   const outline = new THREE.Mesh(geometry, material)
   outline.position.set(position.x, position.y, position.z)
+  outline.scale.set(scale.x, scale.y, scale.z)
   scene.add(outline) 
 }
 
@@ -136,6 +112,40 @@ const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(1, 0.4, 128, 128, 2
   })
 )
 
+const characterShader = new THREE.ShaderMaterial({
+  uniforms: {
+    textured: {value: true},
+    textureMap: {value: texture},
+    modelColor : {value: new THREE.Color(0xFF0000)},
+    lightSourcePosition: {value: PointLight.position},
+    toneMap: {value: toneMap}
+  },
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader
+})
+
+const fbxLoader = new FBXLoader()
+fbxLoader.load(
+    'models/ramooona.fbx',
+    (object) => {
+         object.traverse(function (child) {
+          console.log(child.name)   
+          if(child.name == "Merged_dm1"){
+            child.material = characterShader
+            solidify(child, 0.008, new THREE.Vector4(0,0,0,1), child.position, child.scale)
+            scene.add(child)
+          }
+        })
+        
+        scene.add(object)
+    },
+    (xhr) => {
+        console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
+    },
+    (error) => {
+        console.log(error)
+    }
+)
 
 torusKnot.position.set(5,0,0)
 //solidify(torusKnot, 0.03, new THREE.Vector4(0.0,0.0,0.0,1.0), torusKnot.position)
